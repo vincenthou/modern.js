@@ -1,4 +1,4 @@
 import './index.less';
-import './index.sass';
+import './index.scss';
 
 export const name = 'style bundle';
