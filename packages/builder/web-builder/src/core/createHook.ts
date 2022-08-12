@@ -1,3 +1,4 @@
+import { debug, traceCallFrom } from '../shared';
 import type {
   OnExitFn,
   OnAfterBuildFn,
@@ -16,10 +17,13 @@ export type AsyncHook<Callback extends (...args: any[]) => any> = {
   ) => Promise<Parameters<Callback>[number][]>;
 };
 
-export function createAsyncHook<Callback extends (...args: any[]) => any>() {
+export function createAsyncHook<Callback extends (...args: any[]) => any>(
+  name?: string,
+) {
   const callbacks: Callback[] = [];
 
   const tap = (cb: Callback) => {
+    debug(`Calling to tap "${name}" ${traceCallFrom(2)}.`);
     callbacks.push(cb);
   };
 

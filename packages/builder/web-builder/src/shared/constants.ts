@@ -32,3 +32,6 @@ export const IMAGE_EXTENSIONS = [
   'avif',
   'tiff',
 ];
+
+export const ENABLE_VERSION_LOG =
+  process.env.VERBOSE || process.env.DEBUG || false;
