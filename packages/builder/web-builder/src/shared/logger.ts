@@ -1,5 +1,5 @@
 import chalk from '@modern-js/utils/chalk';
-import { ENABLE_VERSION_LOG } from './constants';
+import { ENABLE_VERBOSE_LOG } from './constants';
 
 export const log = (message: string) => {
   // eslint-disable-next-line no-console
@@ -20,7 +20,7 @@ export const error = (message: string | Error) => {
 };
 
 export const debug = (message: string) => {
-  if (ENABLE_VERSION_LOG) {
+  if (ENABLE_VERBOSE_LOG) {
     console.info(`${chalk.blue.bold('debug')} ${message}`);
   }
 };

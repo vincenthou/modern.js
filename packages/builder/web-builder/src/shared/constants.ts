@@ -33,5 +33,5 @@ export const IMAGE_EXTENSIONS = [
   'tiff',
 ];
 
-export const ENABLE_VERSION_LOG =
+export const ENABLE_VERBOSE_LOG =
   process.env.VERBOSE || process.env.DEBUG || false;
