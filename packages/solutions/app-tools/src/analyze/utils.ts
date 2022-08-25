@@ -46,7 +46,12 @@ export const getDefaultImports = ({
 
   if (fileSystemRoutes) {
     const route: ImportStatement = {
-      specifiers: [{ imported: 'routes' }],
+      specifiers: [
+        { imported: 'routes' },
+        // TODO: 处理只有 pagesDir 或者只有 routesDir 的情况 @yimingjfe
+        { imported: 'routeComponents' },
+        { imported: 'nestedRoutes' },
+      ],
       value: normalizeToPosixPath(
         `${internalDirAlias}/${entryName}/${FILE_SYSTEM_ROUTES_FILE_NAME}`,
       ),

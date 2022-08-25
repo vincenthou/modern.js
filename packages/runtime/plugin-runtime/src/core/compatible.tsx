@@ -77,6 +77,7 @@ export const createApp = ({ plugins }: CreateAppOptions) => {
                 },
               );
             }
+            console.log('9999999', contextValue);
             return (
               <RuntimeReactContext.Provider value={contextValue}>
                 <App {...props} />

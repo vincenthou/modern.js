@@ -1,5 +1,6 @@
 import type { RuntimePlugin } from '@modern-js/core';
 import type { Entrypoint, Route } from '@modern-js/types';
+import { CLIENT_LOADER, NestedRoute } from './nestedRoutes';
 
 export const index = ({
   mountId,
@@ -94,19 +95,121 @@ export const html = (partials: {
 </html>
 `;
 
-export const fileSystemRoutes = ({ routes }: { routes: Route[] }) => `
-import loadable from '@modern-js/runtime/loadable';
+const flattenRoute = (route: NestedRoute): NestedRoute[] => [
+  route,
+  ...route.children.flatMap(flattenRoute),
+];
 
-${routes
-  .map(
-    ({ component, _component }) =>
-      `const ${component} = loadable(() => import('${_component}'));`,
-  )
-  .join('\n\n')}
+export const getClientLoaderCode = (nestedRoute: NestedRoute) => {
+  const routes = flattenRoute(nestedRoute);
+  if (!routes || routes.length === 0) {
+    return ``;
+  }
 
+  const clientLoaders: [string, string][] = [];
+  for (const route of routes) {
+    if (route[CLIENT_LOADER]) {
+      clientLoaders.push([route.id, route.componentPath]);
+    }
+  }
 
-export const routes = ${JSON.stringify(routes, null, 2).replace(
-  /"component"\s*:\s*"(\S+)"/g,
-  '"component": $1',
-)}
-`;
+  if (clientLoaders.length === 0) {
+    return ``;
+  }
+
+  let imports = ``;
+  let exports = `export default {\n`;
+
+  for (let i = 0; i < clientLoaders.length; i++) {
+    const [routeId, filename] = clientLoaders[i];
+    imports += `import { ${CLIENT_LOADER} as loader_${i} } from '${filename}';\n`;
+    exports += `
+      ['${routeId}']: loader_${i},
+    `;
+  }
+
+  exports += `\n}`;
+
+  return `
+    ${imports}
+    ${exports}
+  `;
+};
+
+export const fileSystemRoutes = ({
+  routes,
+  nestedRoute,
+}: {
+  routes?: Route[];
+  nestedRoute?: NestedRoute;
+}) => {
+  const importLoadableCode = `import loadable from '@modern-js/runtime/loadable';`;
+  let importLoadersCode = ``;
+  let loadablePagesCode = '';
+  let routesCode = '';
+  let loadableNestedRoutesCode = '';
+  let nestedRoutesCode = '';
+
+  if (routes && routes.length > 0) {
+    loadablePagesCode = routes
+      .map(
+        ({ component, _component }) =>
+          `const ${component} = loadable(() => import('${_component}'));`,
+      )
+      .join('\n\n');
+
+    routesCode = `
+    export const routes = ${JSON.stringify(routes, null, 2).replace(
+      /"component"\s*:\s*"(\S+)"/g,
+      '"component": $1',
+    )}
+  ;`;
+  }
+
+  if (nestedRoute) {
+    const routes = flattenRoute(nestedRoute);
+    const useClientLoader = routes.some(route => route[CLIENT_LOADER]);
+    if (useClientLoader) {
+      importLoadersCode = `import _loaders from "./loaders";`;
+    }
+
+    loadableNestedRoutesCode = `
+      export const routeComponents = {
+    `;
+
+    for (const route of routes) {
+      const finalRoute: Partial<NestedRoute> & {
+        loader: string;
+        component: string;
+      } = {
+        ...route,
+        loader: `_loaders['${route.id}']`,
+        component: `loadable(() => import('${route.componentPath}'))`,
+      };
+
+      delete finalRoute.children;
+      delete finalRoute?.componentPath;
+
+      loadableNestedRoutesCode += `
+        '${route.id}': ${JSON.stringify(finalRoute, null, 2)},
+      `
+        .replace(/"(loadable[^"]*)"/g, '$1')
+        .replace(/"(_loaders[^"]*)"/g, '$1');
+    }
+
+    loadableNestedRoutesCode += `\n};`;
+
+    nestedRoutesCode = `export const nestedRoutes = ${JSON.stringify(
+      nestedRoute,
+    )};`;
+  }
+
+  return `
+    ${importLoadableCode}
+    ${importLoadersCode}
+    ${loadablePagesCode}
+    ${routesCode}
+    ${loadableNestedRoutesCode}
+    ${nestedRoutesCode}
+  `;
+};

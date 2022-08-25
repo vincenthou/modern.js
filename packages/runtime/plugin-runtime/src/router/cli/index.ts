@@ -7,8 +7,9 @@ import { ServerRoute } from '@modern-js/types';
 import type { CliPlugin } from '@modern-js/core';
 
 const PLUGIN_IDENTIFIER = 'router';
-
 const ROUTES_IDENTIFIER = 'routes';
+const ROUTE_COMPONENTS = 'routeComponents';
+const NESTED_ROUTES = 'nestedRoutes';
 
 export default (): CliPlugin => ({
   name: '@modern-js/plugin-router',
@@ -86,7 +87,7 @@ export default (): CliPlugin => ({
               serverBase,
               ...runtimeConfig.router,
               routesConfig: fileSystemRoutes
-                ? `{ ${ROUTES_IDENTIFIER}, globalApp: App }`
+                ? `{ ${ROUTES_IDENTIFIER}, ${ROUTE_COMPONENTS}, ${NESTED_ROUTES}, globalApp: App }`
                 : undefined,
             }).replace(
               /"routesConfig"\s*:\s*"((\S|\s)+)"/g,

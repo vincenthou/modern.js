@@ -9,6 +9,7 @@ import {
   INDEX_FILE_NAME,
   APP_FILE_NAME,
   PAGES_DIR_NAME,
+  ROUTES_DIR_NAME,
   FILE_SYSTEM_ROUTES_GLOBAL_LAYOUT,
 } from './constants';
 
@@ -26,8 +27,11 @@ const hasApp = (dir: string) =>
 
 const hasPages = (dir: string) => fs.existsSync(path.join(dir, PAGES_DIR_NAME));
 
+const hasRoutes = (dir: string) =>
+  fs.existsSync(path.join(dir, ROUTES_DIR_NAME));
+
 const isBundleEntry = (dir: string) =>
-  hasApp(dir) || hasPages(dir) || hasIndex(dir);
+  hasRoutes(dir) || hasApp(dir) || hasPages(dir) || hasIndex(dir);
 
 const scanDir = (dirs: string[]): Entrypoint[] =>
   dirs.map((dir: string) => {

@@ -88,5 +88,10 @@
     "wireit": "^0.7.1",
     "cypress": "^10.1.0",
     "zx": "4.2.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "react-router-dom": "6.3.0"
+    }
   }
 }

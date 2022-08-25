@@ -8,13 +8,53 @@ import type {
   ImportStatement,
 } from '@modern-js/core';
 import type { Entrypoint } from '@modern-js/types';
+import esbuild from 'esbuild';
 import * as templates from './templates';
 import { getClientRoutes } from './getClientRoutes';
 import {
   FILE_SYSTEM_ROUTES_FILE_NAME,
   ENTRY_POINT_FILE_NAME,
+  ROUTES_DIR_NAME,
+  LOADERS_FILE_TS,
+  LOADERS_FILE_JS,
 } from './constants';
 import { getDefaultImports } from './utils';
+import { getNestedRoutes } from './nestedRoutes';
+
+const loader: { [ext: string]: esbuild.Loader } = {
+  '.aac': 'file',
+  '.css': 'text',
+  '.less': 'text',
+  '.sass': 'text',
+  '.scss': 'text',
+  '.eot': 'file',
+  '.flac': 'file',
+  '.gif': 'file',
+  '.ico': 'file',
+  '.jpeg': 'file',
+  '.jpg': 'file',
+  '.js': 'jsx',
+  '.jsx': 'jsx',
+  '.json': 'json',
+  '.md': 'jsx',
+  '.mdx': 'jsx',
+  '.mp3': 'file',
+  '.mp4': 'file',
+  '.ogg': 'file',
+  '.otf': 'file',
+  '.png': 'file',
+  '.svg': 'file',
+  '.ts': 'ts',
+  '.tsx': 'tsx',
+  '.ttf': 'file',
+  '.wav': 'file',
+  '.webm': 'file',
+  '.webp': 'file',
+  '.woff': 'file',
+  '.woff2': 'file',
+};
+
+export const EXTERNAL_REGEXP = /^[^./]|^\.[^./]|^\.\.[^/]/;
 
 const createImportSpecifier = (specifiers: ImportSpecifier[]): string => {
   let defaults = '';
@@ -100,6 +140,7 @@ export const generateCode = async (
     const { entryName, isAutoMount, customBootstrap, fileSystemRoutes } =
       entrypoint;
     if (isAutoMount) {
+      // TODO: 支持无 pages dir 的情况 @yimingjfe
       // generate routes file for file system routes entrypoint.
       if (fileSystemRoutes) {
         const initialRoutes = getClientRoutes({
@@ -110,6 +151,9 @@ export const generateCode = async (
           internalDirAlias,
         });
 
+        const routesDir = path.join(srcDirectory, ROUTES_DIR_NAME);
+        const nestedRoute = await getNestedRoutes(routesDir);
+
         const { routes } = await hookRunners.modifyFileSystemRoutes({
           entrypoint,
           routes: initialRoutes,
@@ -117,8 +161,53 @@ export const generateCode = async (
 
         const { code } = await hookRunners.beforeGenerateRoutes({
           entrypoint,
-          code: templates.fileSystemRoutes({ routes }),
+          code: templates.fileSystemRoutes({ routes, nestedRoute }),
         });
+
+        if (nestedRoute) {
+          const tmpLoadersFile = path.resolve(
+            internalDirectory,
+            `./${entryName}/${LOADERS_FILE_TS}`,
+          );
+          const outputLoadersFile = path.resolve(
+            internalDirectory,
+            `./${entryName}/${LOADERS_FILE_JS}`,
+          );
+
+          const clientLoaderCode = templates.getClientLoaderCode(nestedRoute);
+          fs.outputFileSync(tmpLoadersFile, clientLoaderCode, 'utf8');
+
+          await esbuild.build({
+            format: 'esm',
+            platform: 'browser',
+            target: 'esnext',
+            loader,
+            watch: process.env.NODE_ENV === 'development' && {},
+            bundle: true,
+            logLevel: 'error',
+            entryPoints: [tmpLoadersFile],
+            outfile: outputLoadersFile,
+            plugins: [
+              {
+                name: 'make-all-packages-external',
+                setup(build) {
+                  // https://github.com/evanw/esbuild/issues/619#issuecomment-751995294
+                  build.onResolve({ filter: EXTERNAL_REGEXP }, args => {
+                    let external = true;
+                    // FIXME: windows external entrypoint
+                    if (args.kind === 'entry-point') {
+                      external = false;
+                    }
+                    return {
+                      path: args.path,
+                      external,
+                    };
+                  });
+                },
+              },
+            ],
+          });
+        }
 
         fs.outputFileSync(
           path.resolve(

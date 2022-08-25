@@ -5,5 +5,6 @@ export type { SingleRouteConfig, HistoryConfig, RouterConfig };
 
 export default routerPlugin;
 
+export { useRouteData, useClientLoaderData } from './routeContext';
 export * from 'react-router-dom';
-export * from 'history';
+// export * from 'history';

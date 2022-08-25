@@ -1,0 +1,77 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`nested routes getClientLoaderCode 1`] = `""`;
+
+exports[`nested routes getNestedRoutes 1`] = `
+Object {
+  "childIds": Array [
+    "index",
+    "sales",
+  ],
+  "children": Array [
+    Object {
+      "childIds": Array [],
+      "children": Array [],
+      "clientLoader": false,
+      "componentPath": "/Users/bytedance/Desktop/workspaces/modern.js/packages/solutions/app-tools/tests/analyze/fixtures/nest-routes/index.tsx",
+      "id": "index",
+      "index": true,
+      "path": "index",
+      "root": false,
+    },
+    Object {
+      "childIds": Array [
+        "sales/invoices",
+      ],
+      "children": Array [
+        Object {
+          "childIds": Array [
+            "sales/invoices/[id]",
+            "sales/invoices/index",
+          ],
+          "children": Array [
+            Object {
+              "childIds": Array [],
+              "children": Array [],
+              "clientLoader": false,
+              "componentPath": "/Users/bytedance/Desktop/workspaces/modern.js/packages/solutions/app-tools/tests/analyze/fixtures/nest-routes/sales/invoices/[id].tsx",
+              "id": "sales/invoices/[id]",
+              "index": false,
+              "path": ":id",
+              "root": false,
+            },
+            Object {
+              "childIds": Array [],
+              "children": Array [],
+              "clientLoader": false,
+              "componentPath": "/Users/bytedance/Desktop/workspaces/modern.js/packages/solutions/app-tools/tests/analyze/fixtures/nest-routes/sales/invoices/index.tsx",
+              "id": "sales/invoices/index",
+              "index": true,
+              "path": "index",
+              "root": false,
+            },
+          ],
+          "clientLoader": false,
+          "componentPath": "/Users/bytedance/Desktop/workspaces/modern.js/packages/solutions/app-tools/tests/analyze/fixtures/nest-routes/sales/invoices.tsx",
+          "id": "sales/invoices",
+          "index": false,
+          "path": "invoices",
+          "root": false,
+        },
+      ],
+      "clientLoader": false,
+      "componentPath": "/Users/bytedance/Desktop/workspaces/modern.js/packages/solutions/app-tools/tests/analyze/fixtures/nest-routes/sales.tsx",
+      "id": "sales",
+      "index": false,
+      "path": "sales",
+      "root": false,
+    },
+  ],
+  "clientLoader": false,
+  "componentPath": "/Users/bytedance/Desktop/workspaces/modern.js/packages/solutions/app-tools/tests/analyze/fixtures/nest-routes/app.tsx",
+  "id": "app",
+  "index": false,
+  "path": "/",
+  "root": true,
+}
+`;

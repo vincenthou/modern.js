@@ -1,6 +1,7 @@
 import path from 'path';
 import { logger, PLUGIN_SCHEMAS } from '@modern-js/utils';
 import type { CliPlugin } from '@modern-js/core';
+// TODO: 待升级 react-router-dom
 import { generatePath } from 'react-router-dom';
 import {
   AgreedRoute,
