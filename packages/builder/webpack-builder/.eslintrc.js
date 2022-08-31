@@ -21,6 +21,9 @@ const restrictedImportInSource = {
     ...devDependencyPaths,
   ].map(withAllowTypeImports('name')),
   patterns: [
+    'src/**/*',
+    '**/stub',
+    '**/stub/*',
     '**/plugins/*',
     '**/webpackPlugins/*',
     '*-webpack-plugin',
@@ -47,6 +50,7 @@ module.exports = {
   rules: {
     'import/order': 0,
     '@typescript-eslint/ban-ts-comment': 0,
+    'eslint-comments/no-unlimited-disable': 0,
   },
   overrides: [
     {

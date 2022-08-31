@@ -1,4 +1,4 @@
-import { getDistPath, DEFAULT_PORT } from '../shared';
+import { getDistPath, getFilename, DEFAULT_PORT } from '../shared';
 import type {
   BuilderConfig,
   BuilderContext,
@@ -46,21 +46,20 @@ export const PluginOutput = (): BuilderPlugin => ({
       const config = api.getBuilderConfig();
       const jsPath = getDistPath(config, 'js');
       const cssPath = getDistPath(config, 'css');
-      const useHash = isProd && !config.output?.disableFilenameHash;
-      const hash = useHash ? '.[contenthash:8]' : '';
 
       const publicPath = getPublicPath({
         config,
         isProd,
         context: api.context,
       });
-      const enableExtractCSS = Boolean(config.tools?.cssExtract);
+      const enableExtractCSS = !config.tools?.styleLoader;
 
       // js output
+      const jsFilename = getFilename(config, 'js', isProd);
       chain.output
         .path(api.context.distPath)
-        .filename(`${jsPath}/[name]${hash}.js`)
-        .chunkFilename(`${jsPath}/async/[name]${hash}.js`)
+        .filename(`${jsPath}/${jsFilename}`)
+        .chunkFilename(`${jsPath}/async/${jsFilename}`)
         .publicPath(publicPath)
         // since webpack v5.54.0+, hashFunction supports xxhash64 as a faster algorithm
         // which will be used as default when experiments.futureDefaults is enabled.
@@ -76,9 +75,10 @@ export const PluginOutput = (): BuilderPlugin => ({
           MiniCSSExtractPluginOptions,
           null
         >({}, config.tools?.cssExtract?.pluginOptions || {});
-        const cssChunkName = `${cssPath}/[name]${
-          isProd ? '.[contenthash:8]' : ''
-        }.css`;
+
+        const cssFilename = getFilename(config, 'css', isProd);
+        const cssChunkName = `${cssPath}/${cssFilename}`;
+
         chain
           .plugin(CHAIN_ID.PLUGIN.MINI_CSS_EXTRACT)
           .use(MiniCssExtractPlugin, [
