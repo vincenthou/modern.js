@@ -6,7 +6,7 @@ import { PluginModuleScopes } from '../../src/plugins/moduleScopes';
 import { PluginMoment } from '../../src/plugins/moment';
 import { PluginOutput } from '../../src/plugins/output';
 import { PluginResolve } from '../../src/plugins/resolve';
-import { createStubBuilder } from '../../src/stub';
+import { createStubBuilder } from '../utils/builder';
 
 describe('plugins/compatModern', () => {
   it('should apply compatible webpack configs correctly', async () => {

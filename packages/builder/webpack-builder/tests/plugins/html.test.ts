@@ -1,7 +1,8 @@
 import { expect, describe, it } from 'vitest';
 import { PluginHtml } from '../../src/plugins/html';
 import { PluginEntry } from '../../src/plugins/entry';
-import { createStubBuilder } from '../../src/stub';
+import { createStubBuilder } from '../utils/builder';
+import { isPluginRegistered } from '../utils/webpack';
 
 describe('plugins/html', () => {
   it('should register html plugin correctly', async () => {
@@ -13,7 +14,7 @@ describe('plugins/html', () => {
     });
     const config = await builder.unwrapWebpackConfig();
 
-    expect(await builder.matchWebpackPlugin('HtmlWebpackPlugin')).toBeTruthy();
+    expect(isPluginRegistered(config, 'HtmlWebpackPlugin')).toBeTruthy();
     expect(config).toMatchSnapshot();
   });
 
@@ -30,9 +31,8 @@ describe('plugins/html', () => {
       },
     });
 
-    expect(
-      await builder.matchWebpackPlugin('HtmlCrossOriginPlugin'),
-    ).toBeTruthy();
+    const config = await builder.unwrapWebpackConfig();
+    expect(isPluginRegistered(config, 'HtmlCrossOriginPlugin')).toBeTruthy();
   });
 
   it('should register appIcon plugin when using html.appIcon', async () => {
@@ -48,7 +48,8 @@ describe('plugins/html', () => {
       },
     });
 
-    expect(await builder.matchWebpackPlugin('HtmlAppIconPlugin')).toBeTruthy();
+    const config = await builder.unwrapWebpackConfig();
+    expect(isPluginRegistered(config, 'HtmlAppIconPlugin')).toBeTruthy();
   });
 
   it('should allow to set favicon by html.favicon option', async () => {
@@ -110,7 +111,7 @@ describe('plugins/html', () => {
       },
       builderConfig: {
         tools: {
-          htmlPlugin(_config, utils) {
+          htmlPlugin(config, utils) {
             expect(utils.entryName).toEqual('main');
             return {
               inject: true,

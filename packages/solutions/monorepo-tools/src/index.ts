@@ -1,16 +1,10 @@
 import type { CliPlugin } from '@modern-js/core';
 import ChangesetPlugin from '@modern-js/plugin-changeset';
 import LintPlugin from '@modern-js/plugin-jarvis';
-import { Import } from '@modern-js/utils';
 import { i18n } from './locale';
 import { newCli, deployCli, clearCli } from './cli';
 import { getLocaleLanguage } from './utils/language';
 import { hooks } from './hooks';
-
-const upgradeModel: typeof import('@modern-js/upgrade') = Import.lazy(
-  '@modern-js/upgrade',
-  require,
-);
 
 export default (): CliPlugin => ({
   name: '@modern-js/monorepo-tools',
@@ -25,7 +19,6 @@ export default (): CliPlugin => ({
         clearCli(program, api);
         deployCli(program, api);
         newCli(program, locale);
-        upgradeModel.defineCommand(program.command('upgrade'));
       },
     };
   },

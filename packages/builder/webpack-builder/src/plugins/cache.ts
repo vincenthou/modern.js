@@ -5,20 +5,11 @@ export const PluginCache = (): BuilderPlugin => ({
   name: 'webpack-builder-plugin-cache',
 
   setup(api) {
-    api.modifyWebpackChain(async chain => {
+    api.modifyWebpackChain(chain => {
       const { context } = api;
       const cacheDirectory = join(context.cachePath, 'webpack');
-      const rootPackageJson = join(context.rootPath, 'package.json');
-      const browserslistConfig = join(context.rootPath, '.browserslistrc');
+      const buildDependencies: Record<string, string[]> = {};
 
-      /**
-       * webpack can't detect the changes of framework config, tsconfig and browserslist config.
-       * but they will affect the compilation result, so they need to be added to buildDependencies.
-       */
-      const buildDependencies: Record<string, string[]> = {
-        packageJson: [rootPackageJson],
-        browserslistrc: [browserslistConfig],
-      };
       if (context.configPath) {
         buildDependencies.config = [context.configPath];
       }

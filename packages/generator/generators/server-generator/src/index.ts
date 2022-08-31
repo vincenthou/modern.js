@@ -1,7 +1,6 @@
 import path from 'path';
 import {
   fs,
-  getModernPluginVersion,
   getPackageVersion,
   isTsProject,
   readTsConfigByFile,
@@ -15,7 +14,6 @@ import {
   i18n,
   Language,
   ServerSchema,
-  Solution,
 } from '@modern-js/generator-common';
 
 function isEmptyServerDir(serverDir: string) {
@@ -94,24 +92,18 @@ const handleTemplateFile = async (
     };
   }
 
-  const getServerPluginVersion = (packageName: string) => {
-    return getModernPluginVersion(Solution.MWA, packageName, {
-      registry: context.config.registry,
-    });
-  };
-
   await jsonAPI.update(
     context.materials.default.get(path.join(appDir, 'package.json')),
     {
       query: {},
       update: {
         $set: {
-          'dependencies.@modern-js/plugin-server': `${await getServerPluginVersion(
+          'dependencies.@modern-js/plugin-server': `^${await getPackageVersion(
             '@modern-js/plugin-server',
           )}`,
           [`dependencies.@modern-js/plugin-${
             framework as string
-          }`]: `${await getServerPluginVersion(
+          }`]: `^${await getPackageVersion(
             `@modern-js/plugin-${framework as string}`,
           )}`,
           ...updateInfo,

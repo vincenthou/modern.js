@@ -15,13 +15,12 @@ import {
   ModuleActionFunctionsPeerDependencies,
   ModuleNewActionGenerators,
   ActionType,
-  Solution,
 } from '@modern-js/generator-common';
 import {
+  getPackageVersion,
   getPackageManager,
-  getModernPluginVersion,
 } from '@modern-js/generator-utils';
-import { alreadyRepo, getGeneratorPath, hasEnabledFunction } from './utils';
+import { alreadyRepo, hasEnabledFunction } from './utils';
 
 interface IModuleNewActionOption {
   locale?: string;
@@ -102,12 +101,16 @@ export const ModuleNewAction = async (options: IModuleNewActionOption) => {
 
   const action = ans[actionType] as string;
 
-  const generator = getGeneratorPath(
-    ModuleNewActionGenerators[actionType]![action],
-    distTag,
-  );
+  let generator =
+    ModuleNewActionGenerators[actionType] &&
+    ModuleNewActionGenerators[actionType]![action];
+
   if (!generator) {
     throw new Error(`no valid option`);
+  }
+
+  if (distTag) {
+    generator = `${generator}@${distTag}`;
   }
 
   const devDependency =
@@ -116,12 +119,6 @@ export const ModuleNewAction = async (options: IModuleNewActionOption) => {
     ModuleActionFunctionsDependencies[action as ActionFunction];
   const peerDependency =
     ModuleActionFunctionsPeerDependencies[action as ActionFunction];
-
-  const getModulePluginVersion = (packageName: string) => {
-    return getModernPluginVersion(Solution.Module, packageName, {
-      registry,
-    });
-  };
 
   const finalConfig = merge(
     UserConfig,
@@ -133,14 +130,14 @@ export const ModuleNewAction = async (options: IModuleNewActionOption) => {
     },
     {
       devDependencies: devDependency
-        ? { [devDependency]: `${await getModulePluginVersion(devDependency)}` }
+        ? { [devDependency]: `^${await getPackageVersion(devDependency)}` }
         : {},
       dependencies: dependency
-        ? { [dependency]: `${await getModulePluginVersion(dependency)}` }
+        ? { [dependency]: `^${await getPackageVersion(dependency)}` }
         : {},
       peerDependencies: peerDependency
         ? {
-            [peerDependency]: `${await getModulePluginVersion(peerDependency)}`,
+            [peerDependency]: `^${await getPackageVersion(peerDependency)}`,
           }
         : {},
     },

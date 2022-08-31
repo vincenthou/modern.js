@@ -21,8 +21,15 @@ const memo = <T extends (...args: any[]) => any>(fn: T) => {
 };
 
 export const createRuntimeExportsUtils = memo(
-  (pwd = '', namespace = 'index') => {
-    const entryExportFile = path.join(pwd, `.runtime-exports/${namespace}.js`);
+  (pwd = '', namespace: string, ts = false) => {
+    const entryExportFile = path.join(
+      pwd,
+      `.runtime-exports/${namespace ? `${namespace}.js` : 'index.js'}`,
+    );
+    const entryExportTsFile = path.join(
+      pwd,
+      `.runtime-exports/${namespace ? `${namespace}.d.ts` : 'index.d.ts'}`,
+    );
 
     // const ensure = () => {
     //   if (!fs.existsSync(entryExportFile)) {
@@ -36,9 +43,15 @@ export const createRuntimeExportsUtils = memo(
       statement = normalizeOutputPath(statement);
       try {
         fs.ensureFileSync(entryExportFile);
+        fs.ensureFileSync(entryExportTsFile);
 
         if (!fs.readFileSync(entryExportFile, 'utf8').includes(statement)) {
           fs.appendFileSync(entryExportFile, `${statement}\n`);
+          ts &&
+            fs.appendFileSync(
+              entryExportTsFile,
+              `${statement.replace('.js', '.d')}\n`,
+            );
         }
       } catch {
         // FIXME:

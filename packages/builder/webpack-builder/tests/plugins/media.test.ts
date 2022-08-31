@@ -1,6 +1,6 @@
 import { expect, describe, it } from 'vitest';
 import { PluginMedia } from '../../src/plugins/media';
-import { createStubBuilder } from '../../src/stub';
+import { createStubBuilder } from '../utils/builder';
 
 describe('plugins/media', () => {
   it('should add media rules correctly', async () => {
@@ -23,40 +23,8 @@ describe('plugins/media', () => {
         },
       },
     });
-
     const config = await builder.unwrapWebpackConfig();
-    expect(config).toMatchSnapshot();
-  });
 
-  it('should allow to use distPath.media to be empty string', async () => {
-    const builder = createStubBuilder({
-      plugins: [PluginMedia()],
-      builderConfig: {
-        output: {
-          distPath: {
-            media: '',
-          },
-        },
-      },
-    });
-
-    const config = await builder.unwrapWebpackConfig();
-    expect(config).toMatchSnapshot();
-  });
-
-  it('should allow to use filename.media to modify filename', async () => {
-    const builder = createStubBuilder({
-      plugins: [PluginMedia()],
-      builderConfig: {
-        output: {
-          filename: {
-            media: 'foo[ext]',
-          },
-        },
-      },
-    });
-
-    const config = await builder.unwrapWebpackConfig();
     expect(config).toMatchSnapshot();
   });
 });

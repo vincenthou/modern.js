@@ -11,7 +11,6 @@ import type Less from '../../../compiled/less';
 
 export type { CopyPluginOptions } from './CopyWebpackPlugin';
 export type { Options as HTMLPluginOptions } from 'html-webpack-plugin';
-export type { Options as PugOptions } from '../../../compiled/pug';
 
 export type TerserPluginOptions = TerserPlugin.BasePluginOptions &
   TerserPlugin.DefinedDefaultMinimizerAndOptions<TerserPlugin.TerserOptions>;

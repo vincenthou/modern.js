@@ -1,16 +1,15 @@
 import { expect, describe, it } from 'vitest';
 import { PluginManifest } from '../../src/plugins/manifest';
-import { createStubBuilder } from '../../src/stub';
+import { createStubBuilder } from '../utils/builder';
+import { isPluginRegistered } from '../utils/webpack';
 
 describe('plugins/manifest', () => {
   it('should not register manifest plugin by default', async () => {
     const builder = createStubBuilder({
       plugins: [PluginManifest()],
     });
-
-    expect(
-      await builder.matchWebpackPlugin('WebpackManifestPlugin'),
-    ).toBeFalsy();
+    const config = await builder.unwrapWebpackConfig();
+    expect(isPluginRegistered(config, 'WebpackManifestPlugin')).toBeFalsy();
   });
 
   it('should register manifest plugin when output.enableAssetManifest is enabled', async () => {
@@ -23,8 +22,7 @@ describe('plugins/manifest', () => {
       },
     });
 
-    expect(
-      await builder.matchWebpackPlugin('WebpackManifestPlugin'),
-    ).toBeTruthy();
+    const config = await builder.unwrapWebpackConfig();
+    expect(isPluginRegistered(config, 'WebpackManifestPlugin')).toBeTruthy();
   });
 });

@@ -1,64 +1,37 @@
-import { mergeBuilderOptions, pick } from '../shared';
+import { pick } from '../shared';
 import { createContext, createPublicContext } from './createContext';
 import { createPluginStore } from './createPluginStore';
-import type { PluginStore, BuilderOptions, Context } from '../types';
+import type { PluginStore, BuilderOptions } from '../types';
 import type { InspectOptions } from './inspectWebpackConfig';
-import { initConfigs } from './initConfigs';
-import type * as webpack from 'webpack';
-import { webpackBuild } from './build';
 
-/**
- * Create primary builder.
- * It will be assembled into a normal context or a stub for testing as needed.
- * Usually it won't take much cost.
- */
-export function createPrimaryBuilder(
-  builderOptions: Required<BuilderOptions>,
-  context: Context,
-) {
-  const publicContext = createPublicContext(context);
-  const pluginStore = createPluginStore();
-
-  const build = async (
-    executeBuild?: (
-      configs: webpack.Configuration[],
-    ) => Promise<{ stats: webpack.MultiStats }>,
-  ) => {
-    const { webpackConfigs } = await initConfigs({
-      context,
-      pluginStore,
-      builderOptions,
-    });
-
-    await context.hooks.onBeforeBuildHook.call({
-      webpackConfigs,
-    });
-
-    const executeResult = await executeBuild?.(webpackConfigs);
-
-    await context.hooks.onAfterBuildHook.call({
-      stats: executeResult?.stats,
-    });
+export function mergeBuilderOptions(options?: BuilderOptions) {
+  const DEFAULT_OPTIONS: Required<BuilderOptions> = {
+    cwd: process.cwd(),
+    entry: {},
+    target: ['web'],
+    configPath: null,
+    builderConfig: {},
+    framework: 'modern-js',
   };
 
   return {
-    context,
-    builderOptions,
-    publicContext,
-    pluginStore,
-    build,
+    ...DEFAULT_OPTIONS,
+    ...options,
   };
 }
 
 export async function createBuilder(options?: BuilderOptions) {
   const builderOptions = mergeBuilderOptions(options);
   const context = await createContext(builderOptions);
-  const { build, pluginStore, publicContext } = createPrimaryBuilder(
-    builderOptions,
-    context,
-  );
+  const publicContext = createPublicContext(context);
+  const pluginStore = createPluginStore();
 
   await addDefaultPlugins(pluginStore);
+
+  const build = async () => {
+    const { build: buildImpl } = await import('./build');
+    return buildImpl({ context, pluginStore, builderOptions });
+  };
 
   const createCompiler = async () => {
     const { createCompiler } = await import('./createCompiler');
@@ -79,7 +52,7 @@ export async function createBuilder(options?: BuilderOptions) {
 
   return {
     ...pick(pluginStore, ['addPlugins', 'removePlugins', 'isPluginExists']),
-    build: () => build(webpackBuild),
+    build,
     context: publicContext,
     createCompiler,
     inspectWebpackConfig,
@@ -88,8 +61,6 @@ export async function createBuilder(options?: BuilderOptions) {
 
 async function addDefaultPlugins(pluginStore: PluginStore) {
   const { PluginHMR } = await import('../plugins/hmr');
-  const { PluginSvg } = await import('../plugins/svg');
-  const { PluginPug } = await import('../plugins/pug');
   const { PluginCopy } = await import('../plugins/copy');
   const { PluginFont } = await import('../plugins/font');
   const { PluginHtml } = await import('../plugins/html');
@@ -108,7 +79,6 @@ async function addDefaultPlugins(pluginStore: PluginStore) {
   const { PluginProgress } = await import('../plugins/progress');
   const { PluginMinimize } = await import('../plugins/minimize');
   const { PluginManifest } = await import('../plugins/manifest');
-  const { PluginFileSize } = await import('../plugins/fileSize');
   const { PluginCleanOutput } = await import('../plugins/cleanOutput');
   const { PluginModuleScopes } = await import('../plugins/moduleScopes');
   const { PluginBabel } = await import('../plugins/babel');
@@ -119,9 +89,6 @@ async function addDefaultPlugins(pluginStore: PluginStore) {
   const { PluginLess } = await import('../plugins/less');
   const { PluginReact } = await import('../plugins/react');
   const { PluginBundleAnalyzer } = await import('../plugins/bundleAnalyzer');
-  const { PluginToml } = await import('../plugins/toml');
-  const { PluginYaml } = await import('../plugins/yaml');
-  const { PluginSplitChunks } = await import('../plugins/splitChunks');
 
   pluginStore.addPlugins([
     // Plugins that provide basic webpack config
@@ -135,8 +102,6 @@ async function addDefaultPlugins(pluginStore: PluginStore) {
 
     // Plugins that provide basic features
     PluginHMR(),
-    PluginSvg(),
-    PluginPug(),
     PluginCopy(),
     PluginFont(),
     PluginHtml(),
@@ -147,9 +112,6 @@ async function addDefaultPlugins(pluginStore: PluginStore) {
     PluginProgress(),
     PluginMinimize(),
     PluginManifest(),
-    // fileSize plugin will read the previous dist files.
-    // So we should register fileSize plugin before cleanOutput plugin.
-    PluginFileSize(),
     PluginCleanOutput(),
     PluginModuleScopes(),
     PluginTsLoader(),
@@ -160,9 +122,6 @@ async function addDefaultPlugins(pluginStore: PluginStore) {
     PluginLess(),
     PluginReact(),
     PluginBundleAnalyzer(),
-    PluginToml(),
-    PluginYaml(),
-    PluginSplitChunks(),
 
     // fallback should be the last plugin
     PluginFallback(),

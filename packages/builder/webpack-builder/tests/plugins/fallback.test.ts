@@ -1,7 +1,7 @@
 import { expect, describe, it } from 'vitest';
 import { PluginFallback } from '../../src/plugins/fallback';
 import { BuilderPlugin } from '../../src/types';
-import { createStubBuilder } from '../../src/stub';
+import { createStubBuilder } from '../utils/builder';
 
 describe('plugins/fallback', () => {
   const testPlugin: BuilderPlugin = {

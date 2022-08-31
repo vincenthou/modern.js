@@ -1,4 +1,4 @@
-import { CSS_REGEX, getBrowserslistWithDefault } from '../shared';
+import { CSS_REGEX } from '../shared';
 import {
   BuilderConfig,
   BuilderContext,
@@ -19,8 +19,9 @@ export async function applyBaseCSSRule(
   utils: ModifyWebpackUtils,
 ) {
   const { isServer, isProd, CHAIN_ID, getCompiledPath } = utils;
-  const { applyOptionsChain } = await import('@modern-js/utils');
-  const browserslist = await getBrowserslistWithDefault(context.rootPath);
+  const { applyOptionsChain, getBrowserslist } = await import(
+    '@modern-js/utils'
+  );
 
   const getPostcssConfig = () => {
     const extraPlugins: AcceptedPlugin[] = [];
@@ -52,7 +53,7 @@ export async function applyBaseCSSRule(
               applyOptionsChain(
                 {
                   flexbox: 'no-2009',
-                  overrideBrowserslist: browserslist,
+                  overrideBrowserslist: getBrowserslist(context.rootPath),
                 },
                 config.tools?.autoprefixer,
               ),
@@ -77,7 +78,7 @@ export async function applyBaseCSSRule(
   };
 
   // 1. Check user config
-  const enableExtractCSS = !config.tools?.styleLoader;
+  const enableExtractCSS = Boolean(config.tools?.cssExtract);
   const enableCSSModuleTS = Boolean(
     config.output?.enableCssModuleTSDeclaration,
   );

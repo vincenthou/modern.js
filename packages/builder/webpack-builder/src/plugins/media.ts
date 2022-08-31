@@ -1,7 +1,6 @@
 import { join } from 'path';
 import {
   getDistPath,
-  getFilename,
   MEDIA_EXTENSIONS,
   getRegExpForExts,
   getDataUrlCondition,
@@ -17,7 +16,7 @@ export const PluginMedia = (): BuilderPlugin => ({
       const regExp = getRegExpForExts(MEDIA_EXTENSIONS);
 
       const distDir = getDistPath(config, 'media');
-      const filename = getFilename(config, 'media', isProd);
+      const filename = isProd ? '[name].[contenthash:8][ext]' : '[name][ext]';
 
       chain.module
         .rule(CHAIN_ID.RULE.MEDIA)
@@ -25,7 +24,7 @@ export const PluginMedia = (): BuilderPlugin => ({
         // @ts-expect-error webpack-chain has incorrect type for `rule.type`
         .type('asset')
         .parser({
-          dataUrlCondition: getDataUrlCondition(config, 'media'),
+          dataUrlCondition: getDataUrlCondition(config.output?.dataUriLimit),
         })
         .set('generator', {
           filename: join(distDir, filename),

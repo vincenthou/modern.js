@@ -15,13 +15,12 @@ import {
   MWANewActionGenerators,
   ActionType,
   i18n,
-  Solution,
 } from '@modern-js/generator-common';
 import {
-  getModernPluginVersion,
   getPackageManager,
+  getPackageVersion,
 } from '@modern-js/generator-utils';
-import { alreadyRepo, getGeneratorPath, hasEnabledFunction } from './utils';
+import { alreadyRepo, hasEnabledFunction } from './utils';
 
 interface IMWANewActionOption {
   locale?: string;
@@ -91,20 +90,15 @@ export const MWANewAction = async (options: IMWANewActionOption) => {
 
   const action = ans[actionType] as string;
 
-  const generator = getGeneratorPath(
-    MWANewActionGenerators[actionType][action],
-    distTag,
-  );
+  let generator = MWANewActionGenerators[actionType][action];
 
   if (!generator) {
     throw new Error(`no valid option`);
   }
 
-  const getMwaPluginVersion = (packageName: string) => {
-    return getModernPluginVersion(Solution.MWA, packageName, {
-      registry,
-    });
-  };
+  if (distTag) {
+    generator = `${generator}@${distTag}`;
+  }
 
   const devDependency =
     MWAActionFunctionsDevDependencies[action as ActionFunction];
@@ -120,12 +114,10 @@ export const MWANewAction = async (options: IMWANewActionOption) => {
     },
     {
       devDependencies: devDependency
-        ? { [devDependency]: `${await getMwaPluginVersion(devDependency)}` }
+        ? { [devDependency]: `^${await getPackageVersion(devDependency)}` }
         : {},
       dependencies: dependency
-        ? {
-            [dependency]: `${await getMwaPluginVersion(dependency)}`,
-          }
+        ? { [dependency]: `^${await getPackageVersion(dependency)}` }
         : {},
       appendTypeContent:
         MWAActionFunctionsAppendTypeContent[action as ActionFunction],

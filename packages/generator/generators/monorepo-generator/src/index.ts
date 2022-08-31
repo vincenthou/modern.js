@@ -54,10 +54,7 @@ export const handleTemplateFile = async (
     isMonorepo: true,
   });
 
-  const modernVersion = await getModernVersion(
-    Solution.Monorepo,
-    context.config.registry,
-  );
+  const modernVersion = await getModernVersion(Solution.Monorepo);
 
   generator.logger.debug(`ans=`, ans);
 

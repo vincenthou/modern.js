@@ -10,7 +10,7 @@ import {
   ModuleSchema,
   Language,
   DependenceGenerator,
-  ModuleActionFunctionsDevDependencies,
+  ModuleActionFunctionsDependencies,
   ActionFunction,
   BooleanConfig,
 } from '@modern-js/generator-common';
@@ -20,9 +20,9 @@ import {
   validatePackagePath,
   validatePackageName,
   getModuleProjectPath,
+  getPackageVersion,
   getPackageManagerText,
   getModernVersion,
-  getAvailableVersion,
 } from '@modern-js/generator-utils';
 import { i18n, localeKeys } from './locale';
 
@@ -96,10 +96,7 @@ export const handleTemplateFile = async (
     },
   );
 
-  const modernVersion = await getModernVersion(
-    Solution.Module,
-    context.config.registry,
-  );
+  const modernVersion = await getModernVersion(Solution.Module);
 
   generator.logger.debug(`inputData=${JSON.stringify(ans)}`, ans);
 
@@ -179,17 +176,13 @@ export const handleTemplateFile = async (
 
   if (enableLess === BooleanConfig.YES) {
     const lessDependence =
-      ModuleActionFunctionsDevDependencies[ActionFunction.Less]!;
+      ModuleActionFunctionsDependencies[ActionFunction.Less]!;
     await appApi.runSubGenerator(
       getGeneratorPath(DependenceGenerator, context.config.distTag),
       undefined,
       {
-        devDependencies: {
-          [lessDependence]: await getAvailableVersion(
-            lessDependence,
-            modernVersion,
-            context.config.registry,
-          ),
+        dependencies: {
+          [lessDependence]: `^${await getPackageVersion(lessDependence)}`,
         },
         projectPath,
         isSubGenerator: true,
@@ -199,17 +192,13 @@ export const handleTemplateFile = async (
 
   if (enableSass === BooleanConfig.YES) {
     const sassDependence =
-      ModuleActionFunctionsDevDependencies[ActionFunction.Sass]!;
+      ModuleActionFunctionsDependencies[ActionFunction.Sass]!;
     await appApi.runSubGenerator(
       getGeneratorPath(DependenceGenerator, context.config.distTag),
       undefined,
       {
-        devDependencies: {
-          [sassDependence]: await getAvailableVersion(
-            sassDependence,
-            modernVersion,
-            context.config.registry,
-          ),
+        dependencies: {
+          [sassDependence]: `^${await getPackageVersion(sassDependence)}`,
         },
         projectPath,
         isSubGenerator: true,

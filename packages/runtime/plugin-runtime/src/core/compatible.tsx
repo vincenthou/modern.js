@@ -110,14 +110,10 @@ interface HydrateFunc {
 
 type BootStrap<T = unknown> = (
   App: React.ComponentType,
-  id: string | Record<string, any> | HTMLElement,
-  root: any,
-  ReactDOM: {
-    render: (children: React.ReactNode, rootElement?: HTMLElement) => void;
-    hydrate: HydrateFunc;
-    createRoot?: (rootElement: HTMLElement) => any;
-    hydrateRoot: HydrateFunc;
-  },
+  id?: string | Record<string, any> | HTMLElement,
+  root?: any,
+  render?: (children: React.ReactNode, rootElement?: HTMLElement) => void,
+  hydrate?: HydrateFunc,
 ) => Promise<T>;
 
 export const bootstrap: BootStrap = async (
@@ -131,7 +127,8 @@ export const bootstrap: BootStrap = async (
    * root.render need use root to run function
    */
   root,
-  ReactDOM = defaultReactDOM as any,
+  render = defaultReactDOM.render as any,
+  hydrate = defaultReactDOM.hydrate as any,
 ) => {
   let App = BootApp;
   let runner = runnerMap.get(App);
@@ -198,17 +195,17 @@ export const bootstrap: BootStrap = async (
       // https://reactjs.org/blog/2022/03/08/react-18-upgrade-guide.html
       const ModernRender = (App: React.ReactNode) => {
         if (IS_REACT18) {
-          (root || ReactDOM.createRoot!(rootElement)).render(App);
+          root.render(App);
         } else {
-          ReactDOM.render(App, rootElement);
+          render(App, rootElement);
         }
       };
 
       const ModernHydrate = (App: React.ReactNode, callback?: () => void) => {
         if (IS_REACT18) {
-          ReactDOM.hydrateRoot(rootElement, App);
+          hydrate(rootElement, App);
         } else {
-          ReactDOM.hydrate(App, rootElement, callback);
+          hydrate(App, rootElement, callback);
         }
       };
 

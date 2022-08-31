@@ -2,7 +2,6 @@ import path from 'path';
 import {
   fs,
   getPackageVersion,
-  getModernPluginVersion,
   isTsProject,
   readTsConfigByFile,
 } from '@modern-js/generator-utils';
@@ -16,7 +15,6 @@ import {
   Framework,
   Language,
   FrameworkAppendTypeContent,
-  Solution,
 } from '@modern-js/generator-common';
 
 function isEmptyApiDir(apiDir: string) {
@@ -62,12 +60,6 @@ export const handleTemplateFile = async (
     throw Error('nest not support js project');
   }
 
-  const getBffPluginVersion = (packageName: string) => {
-    return getModernPluginVersion(Solution.MWA, packageName, {
-      registry: context.config.registry,
-    });
-  };
-
   let updateInfo: Record<string, string> = {};
 
   if (framework === Framework.Express || framework === Framework.Koa) {
@@ -110,12 +102,12 @@ export const handleTemplateFile = async (
       query: {},
       update: {
         $set: {
-          'dependencies.@modern-js/plugin-bff': `${await getBffPluginVersion(
+          'dependencies.@modern-js/plugin-bff': `^${await getPackageVersion(
             '@modern-js/plugin-bff',
           )}`,
           [`dependencies.@modern-js/plugin-${
             framework as string
-          }`]: `${await getBffPluginVersion(
+          }`]: `^${await getPackageVersion(
             `@modern-js/plugin-${framework as string}`,
           )}`,
           ...updateInfo,

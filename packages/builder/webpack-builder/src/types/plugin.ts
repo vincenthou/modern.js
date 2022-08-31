@@ -12,7 +12,7 @@ import type {
 } from './hooks';
 
 export type PluginStore = {
-  readonly plugins: BuilderPlugin[];
+  plugins: BuilderPlugin[];
   addPlugins: (plugins: BuilderPlugin[]) => void;
   removePlugins: (pluginNames: string[]) => void;
   isPluginExists: (pluginName: string) => boolean;

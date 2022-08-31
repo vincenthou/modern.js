@@ -55,7 +55,12 @@ export const renderFunction = ({
     ${
       customBootstrap
         ? `customBootstrap(AppWrapper);`
-        : `bootstrap(AppWrapper, MOUNT_ID, root, ReactDOM);`
+        : `if (IS_REACT18) {
+  root = ReactDOM.createRoot(document.getElementById(MOUNT_ID || 'root'))
+  bootstrap(AppWrapper, MOUNT_ID, root, root.render, ReactDOM.hydrateRoot);
+} else {
+  bootstrap(AppWrapper, MOUNT_ID, undefined, ReactDOM.render, ReactDOM.hydrate);
+}`
     }
   }
 

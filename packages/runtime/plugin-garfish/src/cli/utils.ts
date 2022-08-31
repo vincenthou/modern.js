@@ -94,10 +94,7 @@ export const makeRenderFunction = (code: string) => {
       .replace(`router(`, `generateRouterPlugin(basename,`)
       .replace('(App)', `(AppWrapper)`)
       .replace(/MOUNT_ID/g, 'mountNode')
-      .replace(
-        `bootstrap(AppWrapper, mountNode, root`,
-        'bootstrap(AppWrapper, mountNode, root = IS_REACT18 ? ReactDOM.createRoot(mountNode) : null',
-      )
+      .replace(`document.getElementById(mountNode || 'root')`, 'mountNode')
   );
 };
 

@@ -44,7 +44,6 @@ type TerserOptions = BasePluginOptions & {
 export type {
   TestConfig,
   JestConfig,
-  BabelConfig,
   UnbundleConfig,
   SassConfig,
   SassLoaderOptions,

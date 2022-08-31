@@ -23,12 +23,8 @@ export const CHAIN_ID = {
     SASS: 'sass',
     /** Rule for svg */
     SVG: 'svg',
-    /** Rule for pug */
-    PUG: 'pug',
-    /** Rule for toml */
-    TOML: 'toml',
-    /** Rule for yaml */
-    YAML: 'yaml',
+    SVG_INLINE: 'svg-inline',
+    SVG_URL: 'svg-url',
   },
   /** Predefined rule groups */
   ONE_OF: {
@@ -47,7 +43,6 @@ export const CHAIN_ID = {
     SASS_MODULES: 'sass-modules',
     SVG: 'svg',
     SVG_URL: 'svg-url',
-    SVG_ASSET: 'svg-asset',
     SVG_INLINE: 'svg-inline',
     ASSETS: 'assets',
     ASSETS_URL: 'assets-url',
@@ -65,8 +60,6 @@ export const CHAIN_ID = {
     LESS: 'less',
     /** url-loader */
     URL: 'url',
-    /** pug-loader */
-    PUG: 'pug',
     /** file-loader */
     FILE: 'file',
     /** @svgr/webpack */

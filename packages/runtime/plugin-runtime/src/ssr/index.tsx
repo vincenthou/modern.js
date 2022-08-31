@@ -20,15 +20,11 @@ const ssr = (): Plugin => ({
     const mockResp = mockResponse();
     return {
       client: async ({ App, context, ModernRender, ModernHydrate }) => {
-        // if render level not exist, use client render
-        const renderLevel =
-          window?._SSR_DATA?.renderLevel || RenderLevel.CLIENT_RENDER;
+        const renderLevel = window?._SSR_DATA?.renderLevel;
 
-        // client render and server prefetch use same logic
-        if (
-          renderLevel === RenderLevel.CLIENT_RENDER ||
-          renderLevel === RenderLevel.SERVER_PREFETCH
-        ) {
+        if (renderLevel === RenderLevel.CLIENT_RENDER) {
+          // prefetch block render while csr
+          //   await (App as any)?.prefetch?.(context);
           ModernRender(<App context={context} />);
         } else if (renderLevel === RenderLevel.SERVER_RENDER) {
           loadableReady(() => {
@@ -55,8 +51,7 @@ const ssr = (): Plugin => ({
           });
         } else {
           // unknown renderlevel or renderlevel is server prefetch.
-          console.warn(`unknow render level: ${renderLevel}, execute render()`);
-          ModernRender(<App context={context} />);
+          ModernHydrate(<App context={context} />);
         }
       },
       init({ context }, next) {

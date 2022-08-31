@@ -71,9 +71,7 @@ export async function inspectWebpackConfig({
   builderOptions,
   inspectOptions,
 }: InitConfigsOptions & { inspectOptions: InspectOptions }) {
-  if (inspectOptions.env) {
-    process.env.NODE_ENV = inspectOptions.env;
-  }
+  process.env.NODE_ENV = inspectOptions.env;
 
   const { webpackConfigs } = await initConfigs({
     context,

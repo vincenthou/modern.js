@@ -19,25 +19,6 @@ exports[`plugins/media > should add media rules correctly 1`] = `
 }
 `;
 
-exports[`plugins/media > should allow to use distPath.media to be empty string 1`] = `
-{
-  "module": {
-    "rules": [
-      {
-        "generator": {
-          "filename": "[name][ext]",
-        },
-        "parser": {
-          "dataUrlCondition": [Function],
-        },
-        "test": /\\\\\\.\\(mp4\\|webm\\|ogg\\|mp3\\|wav\\|flac\\|aac\\|mov\\)\\$/i,
-        "type": "asset",
-      },
-    ],
-  },
-}
-`;
-
 exports[`plugins/media > should allow to use distPath.media to modify dist path 1`] = `
 {
   "module": {
@@ -45,25 +26,6 @@ exports[`plugins/media > should allow to use distPath.media to modify dist path 
       {
         "generator": {
           "filename": "foo/[name][ext]",
-        },
-        "parser": {
-          "dataUrlCondition": [Function],
-        },
-        "test": /\\\\\\.\\(mp4\\|webm\\|ogg\\|mp3\\|wav\\|flac\\|aac\\|mov\\)\\$/i,
-        "type": "asset",
-      },
-    ],
-  },
-}
-`;
-
-exports[`plugins/media > should allow to use filename.media to modify filename 1`] = `
-{
-  "module": {
-    "rules": [
-      {
-        "generator": {
-          "filename": "static/media/foo[ext]",
         },
         "parser": {
           "dataUrlCondition": [Function],

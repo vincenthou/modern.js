@@ -5,7 +5,6 @@ const config = defineConfig({
   test: {
     root: __dirname,
     environment: 'node',
-    setupFiles: ['./tests/setup.ts'],
   },
 });
 

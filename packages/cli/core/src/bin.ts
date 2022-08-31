@@ -21,11 +21,7 @@ if (!process.env.NODE_ENV) {
 
 const { version } = require('../package.json');
 
-const cliParams = minimist<{
-  c?: string;
-  config?: string;
-}>(process.argv.slice(2));
-
+const cliParams = minimist(process.argv.slice(2));
 const runOptions: CoreOptions = {
   version,
 };
@@ -41,11 +37,8 @@ const SUPPORT_CONFIG_PARAM_COMMANDS = [
   'start',
   'inspect',
 ];
-
-const customConfigFile = cliParams.config || cliParams.c;
-
-if (SUPPORT_CONFIG_PARAM_COMMANDS.includes(command) && customConfigFile) {
-  runOptions.configFile = customConfigFile;
+if (SUPPORT_CONFIG_PARAM_COMMANDS.includes(command) && cliParams.config) {
+  runOptions.configFile = cliParams.config;
 }
 
 cli.run(process.argv.slice(2), runOptions);
