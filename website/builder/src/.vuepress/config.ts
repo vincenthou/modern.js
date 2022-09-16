@@ -10,67 +10,67 @@ import './md-include-hmr';
 function getI18nHelper(lang: 'cn' | 'en') {
   const cn = lang === 'cn';
   const prefix = cn ? '/zh' : '/en';
-  const fx = (str: string) => `${prefix}${str}`;
-  const ft = (cnText: string, enText: string) => (cn ? cnText : enText);
-  return { ft, fx };
+  const getLink = (str: string) => `${prefix}${str}`;
+  const getText = (cnText: string, enText: string) => (cn ? cnText : enText);
+  return { getText, getLink };
 }
 
 function getNavBar(lang: 'cn' | 'en'): NavItem[] {
-  const { fx, ft } = getI18nHelper(lang);
+  const { getLink, getText } = getI18nHelper(lang);
   return [
     {
-      text: ft('指南', 'Guide'),
-      link: fx('/guide/introduction'),
+      text: getText('指南', 'Guide'),
+      link: getLink('/guide/introduction'),
     },
     {
-      text: ft('开发', 'Develop'),
-      link: fx('/develop/introduction'),
+      text: getText('开发', 'Develop'),
+      link: getLink('/develop/introduction'),
     },
     {
       text: 'API',
-      link: fx('/api/'),
+      link: getLink('/api/'),
     },
   ];
 }
 
 function getSidebar(lang: 'cn' | 'en'): SidebarConfig4Multiple {
-  const { fx, ft } = getI18nHelper(lang);
+  const { getLink, getText } = getI18nHelper(lang);
   return {
-    [fx('/guide/')]: [
+    [getLink('/guide/')]: [
       {
         collapsable: false,
-        title: ft('开始', 'Getting Started'),
-        children: [fx('/guide/introduction'), fx('/guide/quick-start')],
+        title: getText('开始', 'Getting Started'),
+        children: [getLink('/guide/introduction'), getLink('/guide/quick-start')],
       },
     ],
-    [fx('/develop/')]: [
+    [getLink('/develop/')]: [
       {
         collapsable: false,
-        title: ft('开发', 'Development'),
-        children: [fx('/develop/introduction'), fx('/develop/plugin')],
+        title: getText('开发', 'Development'),
+        children: [getLink('/develop/introduction'), getLink('/develop/plugin')],
       },
       {
         collapsable: false,
-        title: ft('质量保障', 'Quality'),
-        children: [fx('/develop/unit-test'), fx('/develop/e2e-test')],
+        title: getText('质量保障', 'Quality'),
+        children: [getLink('/develop/unit-test'), getLink('/develop/e2e-test')],
       },
     ],
-    [fx('/api/')]: [
+    [getLink('/api/')]: [
       {
-        title: ft('API 总览', 'API Reference'),
-        path: fx('/api/'),
+        title: getText('API 总览', 'API Reference'),
+        path: getLink('/api/'),
       },
       {
-        title: ft('配置', 'Config'),
+        title: getText('配置', 'Config'),
         collapsable: false,
         children: [
-          fx('/api/config-source'),
-          fx('/api/config-output'),
-          fx('/api/config-dev'),
-          fx('/api/config-html'),
-          fx('/api/config-security'),
-          fx('/api/config-tools'),
-          fx('/api/config-performance'),
+          getLink('/api/config-source'),
+          getLink('/api/config-output'),
+          getLink('/api/config-dev'),
+          getLink('/api/config-html'),
+          getLink('/api/config-security'),
+          getLink('/api/config-tools'),
+          getLink('/api/config-performance'),
         ],
       },
     ],

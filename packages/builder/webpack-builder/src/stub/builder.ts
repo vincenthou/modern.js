@@ -1,12 +1,16 @@
 import type * as playwright from '@modern-js/e2e/playwright';
+import { getTemplatePath } from '@modern-js/utils';
 import _ from '@modern-js/utils/lodash';
 import assert from 'assert';
 import { PathLike } from 'fs';
-import { DirectoryJSON, Volume } from 'memfs/lib/volume';
-import path from 'path';
+import {
+  applyBasicPlugins,
+  applyDefaultPlugins,
+  applyMinimalPlugins,
+} from '../shared/plugin';
 import { URL } from 'url';
 import { webpackBuild } from '../core/build';
-import { addDefaultPlugins, createPrimaryBuilder } from '../core/createBuilder';
+import { createPrimaryBuilder } from '../core/createBuilder';
 import { Hooks } from '../core/createHook';
 import { matchLoader, mergeBuilderOptions } from '../shared';
 import type {
@@ -20,7 +24,7 @@ import { createStubContext } from './context';
 import { globContentJSON, filenameToGlobExpr } from './utils';
 
 export interface OptionsPluginsItem {
-  builtin?: boolean | 'default' | 'minimal';
+  builtin?: boolean | 'default' | 'minimal' | 'basic';
   additional?: BuilderPlugin[];
 }
 
@@ -31,8 +35,11 @@ export interface StubBuilderOptions extends BuilderOptions {
    * Automatically add builtin plugins by `process.env.STUB_BUILDER_PLUGIN_BUILTIN`.
    */
   plugins?: OptionsPluginsItem | OptionsPluginsItem[keyof OptionsPluginsItem];
-  /** Whether to run webpack build. By default it will be `false` and skip webpack building. */
-  webpack?: boolean | 'in-memory';
+  /**
+   * Whether to run webpack build. By default it will be `false` and skip webpack building.
+   * Set a string value to specify the `output.distPath` config.
+   */
+  webpack?: boolean | string;
 }
 
 export type HookApi = {
@@ -68,9 +75,11 @@ export async function applyPluginOptions(
   const opt = normalizeStubPluginOptions(options);
   // apply plugins
   if (opt.builtin === true || opt.builtin === 'minimal') {
-    // TODO: load minimal plugins
+    pluginStore.addPlugins(await applyMinimalPlugins());
+  } else if (opt.builtin === 'basic') {
+    pluginStore.addPlugins(await applyBasicPlugins());
   } else if (opt.builtin === 'default') {
-    await addDefaultPlugins(pluginStore);
+    pluginStore.addPlugins(await applyDefaultPlugins());
   }
   pluginStore.addPlugins(opt.additional);
 }
@@ -84,26 +93,26 @@ export async function createStubBuilder(options?: StubBuilderOptions) {
   const builderOptions = mergeBuilderOptions(
     options,
   ) as Required<StubBuilderOptions>;
+  // apply webpack option.
+  if (options?.webpack) {
+    const distPath =
+      typeof options.webpack === 'string'
+        ? options.webpack
+        : getTemplatePath('modern-js/stub-builder/dist');
+    _.set(builderOptions.builderConfig, 'output.distPath', distPath);
+  }
+  // init context.
   const context = createStubContext(builderOptions);
+  // merge user context.
   options?.context && _.merge(context, options.context);
+  // init primary builder.
   const {
     pluginStore,
     publicContext,
     build: buildImpl,
   } = createPrimaryBuilder(builderOptions, context);
+  // add builtin and custom plugins by `options.plugins`.
   await applyPluginOptions(pluginStore, options?.plugins);
-
-  // replace outputFileSystem of Webpack.
-  let memfsVolume: Volume | undefined;
-  context.hooks.onAfterCreateCompilerHooks.tap(async ({ compiler }) => {
-    if (options?.webpack === 'in-memory') {
-      const { createFsFromVolume, Volume } = await import('memfs');
-      const vol = new Volume();
-      const ofs = createFsFromVolume(vol);
-      memfsVolume = vol;
-      compiler.outputFileSystem = ofs;
-    }
-  });
 
   // tap on each hook and cache the args.
   const resolvedHooks: Record<string, any> = {};
@@ -152,40 +161,22 @@ export async function createStubBuilder(options?: StubBuilderOptions) {
     return compiler;
   };
 
-  /** Unwrap outputFileSystem of webpack and ensure it is {@link Volume}. */
-  const unwrapOutputVolume = async () => {
-    await build();
-    assert(memfsVolume);
-    return memfsVolume;
-  };
-
   /** Serialize content of output files into JSON object. */
   const unwrapOutputJSON = async (
     paths: PathLike | PathLike[] = context.distPath,
     isRelative = false,
     maxSize = 4096,
-  ): Promise<DirectoryJSON> => {
+  ) => {
     if (Array.isArray(paths) && isRelative) {
       throw new Error('`isRelative` is not supported for multiple paths.');
     }
     await build();
-    if (memfsVolume) {
-      // avoid memfs remove drive letter on windows, refer to https://github.com/streamich/memfs/issues/316.
-      if (!isRelative && process.platform === 'win32') {
-        const ret = memfsVolume.toJSON(paths, undefined, true);
-        return _.mapKeys(ret, (_v, k) => path.join(paths as string, k));
-      } else {
-        const ret = memfsVolume.toJSON(paths, undefined, isRelative);
-        return ret;
-      }
-    } else {
-      const _paths = _(paths)
-        .castArray()
-        .map(filenameToGlobExpr)
-        .map(String)
-        .value();
-      return globContentJSON(_paths, { absolute: !isRelative, maxSize });
-    }
+    const _paths = _(paths)
+      .castArray()
+      .map(filenameToGlobExpr)
+      .map(String)
+      .value();
+    return globContentJSON(_paths, { absolute: !isRelative, maxSize });
   };
 
   /** Read output file content. */
@@ -225,9 +216,7 @@ export async function createStubBuilder(options?: StubBuilderOptions) {
       import('@modern-js/e2e'),
       build(),
     ]);
-    const { port } = await runStaticServer(context.distPath, {
-      volume: memfsVolume,
-    });
+    const { port } = await runStaticServer(context.distPath);
     if (options?.hangOn) {
       // eslint-disable-next-line no-console
       console.log(
@@ -244,7 +233,6 @@ export async function createStubBuilder(options?: StubBuilderOptions) {
       baseUrl,
       htmlRoot,
       homeUrl,
-      volume: memfsVolume,
       port,
     };
   };
@@ -282,7 +270,6 @@ export async function createStubBuilder(options?: StubBuilderOptions) {
     unwrapWebpackConfigs,
     unwrapWebpackConfig,
     unwrapWebpackCompiler,
-    unwrapOutputVolume,
     unwrapOutputJSON,
     unwrapOutputFile,
     readOutputFile,
