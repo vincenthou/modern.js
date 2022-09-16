@@ -23,6 +23,10 @@ function getNavBar(lang: 'cn' | 'en'): NavItem[] {
       link: fx('/guide/introduction'),
     },
     {
+      text: ft('开发', 'Develop'),
+      link: fx('/develop/introduction'),
+    },
+    {
       text: 'API',
       link: fx('/api/'),
     },
@@ -35,8 +39,20 @@ function getSidebar(lang: 'cn' | 'en'): SidebarConfig4Multiple {
     [fx('/guide/')]: [
       {
         collapsable: false,
-        title: ft('开始', 'Start'),
+        title: ft('开始', 'Getting Started'),
         children: [fx('/guide/introduction'), fx('/guide/quick-start')],
+      },
+    ],
+    [fx('/develop/')]: [
+      {
+        collapsable: false,
+        title: ft('开发', 'Development'),
+        children: [fx('/develop/introduction'), fx('/develop/plugin')],
+      },
+      {
+        collapsable: false,
+        title: ft('质量保障', 'Quality'),
+        children: [fx('/develop/unit-test'), fx('/develop/e2e-test')],
       },
     ],
     [fx('/api/')]: [
