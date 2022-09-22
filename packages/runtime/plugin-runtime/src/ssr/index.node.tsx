@@ -7,7 +7,7 @@ import type { Plugin } from '../core';
 import { isBrowser } from '../common';
 import { SSRServerContext } from './serverRender/type';
 import prefetch from './prefetch';
-import { formatServer } from './utils';
+import { formatServer, isReact18 } from './utils';
 
 const registeredApps = new WeakSet();
 
@@ -22,13 +22,17 @@ const plugin = (): Plugin => ({
         }
 
         if (!isBrowser()) {
-          const html = await require('./serverRender').render(
-            context,
-            context?.ssrContext?.distDir || path.join(process.cwd(), 'dist'),
-            App,
-          );
+          if (isReact18()) {
+            // TODO: streaming Render
+          } else {
+            const html = await require('./serverRender').render(
+              context,
+              context?.ssrContext?.distDir || path.join(process.cwd(), 'dist'),
+              App,
+            );
 
-          return html;
+            return html;
+          }
         }
 
         return null;
