@@ -1834,8 +1834,18 @@ pre.vue-container em {
   text-decoration: underline;
 }
 .vp-doc h2 {
-  padding-top: 2rem;
+  position: relative;
+}
+.vp-doc h2::after {
+  content: ' ';
+  position: absolute;
+  top: 56px;
+  left: 0;
+  right: 0;
   border-top: 1px solid rgba(60,60,60,0.12);
+}
+.vp-doc h2::before {
+  height: 95px;
 }
 
 #nprogress {
