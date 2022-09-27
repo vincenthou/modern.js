@@ -3594,28 +3594,6 @@ a.header-anchor[data-v-311146c9]:focus {
   margin-top: 3rem;
 }
 
-.pia-summary-divider[data-v-0ff50953] {
-  display: inline-block;
-  margin-right: 4px;
-}
-.pia-summary-guide[data-v-0ff50953] {
-  opacity: 0.8;
-  font-style: italic;
-  color: var(--c-brand);
-}
-.pia-summary-guide[data-v-0ff50953]:before {
-  content: 'Click to expand';
-}
-.pia-summary[data-v-0ff50953] {
-  font-size: 0.8em;
-  outline: none;
-}
-.pia-summary[data-v-0ff50953]::marker {
-  color: var(--c-brand);
-  content: '▶️';
-  font-weight: bolder;
-}
-
 
 .next-step {
   border: 1px solid var(--vp-c-bg-soft);
@@ -3650,6 +3628,28 @@ a.header-anchor[data-v-311146c9]:focus {
     flex: 0 100%;
     margin-bottom: 20px;
 }
+}
+
+.pia-summary-divider[data-v-0ff50953] {
+  display: inline-block;
+  margin-right: 4px;
+}
+.pia-summary-guide[data-v-0ff50953] {
+  opacity: 0.8;
+  font-style: italic;
+  color: var(--c-brand);
+}
+.pia-summary-guide[data-v-0ff50953]:before {
+  content: 'Click to expand';
+}
+.pia-summary[data-v-0ff50953] {
+  font-size: 0.8em;
+  outline: none;
+}
+.pia-summary[data-v-0ff50953]::marker {
+  color: var(--c-brand);
+  content: '▶️';
+  font-weight: bolder;
 }
 
 
