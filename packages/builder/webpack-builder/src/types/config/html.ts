@@ -16,9 +16,13 @@ export interface HtmlConfig {
   mountId?: string;
   crossorigin?: boolean | CrossOrigin;
   disableHtmlFolder?: boolean;
-  templateParameters?: Record<string, unknown>;
+  templateParameters?:
+    | Record<string, unknown>
+    | HTMLPluginOptions['templateParameters'];
   templateParametersByEntries?: Record<
     string,
-    Record<string, unknown> | undefined
+    | Record<string, unknown>
+    | undefined
+    | HTMLPluginOptions['templateParameters']
   >;
 }
