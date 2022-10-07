@@ -1,5 +1,6 @@
 export { createBuilder } from './core/createBuilder';
 export { mergeBuilderConfig } from './shared/utils';
+export { getBrowserslist, getBrowserslistWithDefault } from './shared';
 
 export type { BuilderInstance } from './core/createBuilder';
 export type {
@@ -33,3 +34,5 @@ export type {
   TerserPluginOptions,
   PostCSSLoaderOptions,
 } from './types';
+
+export * as webpackMerge from '../compiled/webpack-merge';
