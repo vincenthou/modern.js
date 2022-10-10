@@ -4,16 +4,15 @@ import React from 'react';
 import ReactDomServer from 'react-dom/server';
 import serialize from 'serialize-javascript';
 import ReactHelmet, { HelmetData } from 'react-helmet';
-import { RuntimeContext } from '../../core';
-import { Fragment, toFragments } from './template';
 import {
+  RuntimeContext,
   ModernSSRReactComponent,
-  RenderLevel,
   SSRServerContext,
-  RenderResult,
-} from './type';
+} from '../types';
+import helmetReplace from '../helmet';
+import { Fragment, toFragments } from './template';
+import { RenderLevel, RenderResult } from './type';
 
-import helmetReplace from './helmet';
 import { reduce } from './reduce';
 import * as loadableRenderer from './loadable';
 import * as styledComponentRenderer from './styledComponent';

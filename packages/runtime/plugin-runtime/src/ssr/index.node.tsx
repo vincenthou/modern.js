@@ -1,13 +1,10 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
-/* eslint-disable @typescript-eslint/no-require-imports */
-import path from 'path';
 import { registerPrefetch } from '../core';
 import type { Plugin } from '../core';
-
 import { isBrowser } from '../common';
-import { SSRServerContext } from './serverRender/type';
+import { SSRServerContext } from './serverRender/types';
 import prefetch from './prefetch';
-import { formatServer, isReact18 } from './utils';
+import { formatServer } from './utils';
+import serverRender from './serverRender';
 
 const registeredApps = new WeakSet();
 
@@ -22,17 +19,7 @@ const plugin = (): Plugin => ({
         }
 
         if (!isBrowser()) {
-          if (isReact18()) {
-            // TODO: streaming Render
-          } else {
-            const html = await require('./serverRender').render(
-              context,
-              context?.ssrContext?.distDir || path.join(process.cwd(), 'dist'),
-              App,
-            );
-
-            return html;
-          }
+          return serverRender(App, context);
         }
 
         return null;
@@ -65,5 +52,3 @@ const plugin = (): Plugin => ({
 
 export default plugin;
 export * from './react';
-/* eslint-enable @typescript-eslint/no-require-imports */
-/* eslint-enable @typescript-eslint/no-var-requires */

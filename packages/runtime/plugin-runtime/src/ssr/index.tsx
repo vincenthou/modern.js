@@ -1,7 +1,7 @@
 import { loadableReady } from '@loadable/component';
 import hoistNonReactStatics from 'hoist-non-react-statics';
 import type { Plugin } from '../core';
-import { RenderLevel, SSRServerContext } from './serverRender/type';
+import { RenderLevel, SSRServerContext } from './serverRender/types';
 import { WithCallback } from './react/withCallback';
 import { formatClient, mockResponse, isReact18 } from './utils';
 
@@ -26,6 +26,7 @@ const ssr = (): Plugin => ({
           // won't cause component re-render because context's reference identity doesn't change
           delete hydrateContext._hydration;
         };
+        // react18 render
         if (isReact18()) {
           loadableReady(() => {
             // callback: https://github.com/reactwg/react-18/discussions/5
@@ -39,6 +40,7 @@ const ssr = (): Plugin => ({
           });
           return;
         }
+        // react17 render
         // if render level not exist, use client render
         const renderLevel =
           window?._SSR_DATA?.renderLevel || RenderLevel.CLIENT_RENDER;
