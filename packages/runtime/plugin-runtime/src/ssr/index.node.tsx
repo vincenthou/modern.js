@@ -1,3 +1,4 @@
+import type { ServerConfig } from '@modern-js/core';
 import { registerPrefetch } from '../core';
 import type { Plugin } from '../core';
 import { isBrowser } from '../common';
@@ -8,7 +9,7 @@ import serverRender from './serverRender';
 
 const registeredApps = new WeakSet();
 
-const plugin = (): Plugin => ({
+const plugin = (config: ServerConfig['ssr'] = {}): Plugin => ({
   name: '@modern-js/plugin-ssr',
   setup: () => {
     return {
@@ -19,7 +20,11 @@ const plugin = (): Plugin => ({
         }
 
         if (!isBrowser()) {
-          return serverRender(App, context);
+          return serverRender(
+            App,
+            context,
+            typeof config !== 'boolean' ? config?.mode : undefined,
+          );
         }
 
         return null;

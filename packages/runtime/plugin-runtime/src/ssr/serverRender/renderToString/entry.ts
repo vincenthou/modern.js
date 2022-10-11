@@ -10,13 +10,13 @@ import {
   SSRServerContext,
 } from '../types';
 import helmetReplace from '../helmet';
+import { time } from '../utils';
 import { Fragment, toFragments } from './template';
 import { RenderLevel, RenderResult } from './type';
 
 import { reduce } from './reduce';
 import * as loadableRenderer from './loadable';
 import * as styledComponentRenderer from './styledComponent';
-import { time } from './measure';
 
 type EntryOptions = {
   ctx: SSRServerContext;
